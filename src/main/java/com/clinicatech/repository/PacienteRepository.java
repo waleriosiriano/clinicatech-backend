@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 // Interface responsável por interagir com o banco de dados
 @Repository
 public interface PacienteRepository extends JpaRepository<Paciente, Long> {
-    // Podemos adicionar consultas específicas depois, como buscar por CPF
+   
 }
