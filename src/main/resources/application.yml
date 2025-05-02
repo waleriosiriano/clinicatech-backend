@@ -15,7 +15,8 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://localhost:27017/clinicatech_logs
+      uri: mongodb://localhost:27017/clinicatech
+      database: clinicatech
 
 server:
   port: 8080
