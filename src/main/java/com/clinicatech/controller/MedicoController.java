@@ -4,7 +4,7 @@ import com.clinicatech.dto.MedicoDTO;
 import com.clinicatech.model.Especialidade;
 import com.clinicatech.model.Medico;
 import com.clinicatech.repository.EspecialidadeRepository;
-import com.clinicatech.repository.MedicoRepository;
+import com.clinicatech.service.MedicoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class MedicoController {
 
     @Autowired
-    private MedicoRepository medicoRepository;
+    private MedicoService medicoService;
 
     @Autowired
     private EspecialidadeRepository especialidadeRepository;
@@ -42,12 +42,54 @@ public class MedicoController {
 
         medico.setEspecialidades(especialidades);
 
-        Medico salvo = medicoRepository.save(medico);
+        Medico salvo = medicoService.salvar(medico);
         return ResponseEntity.ok(salvo);
     }
 
     @GetMapping
     public List<Medico> listarTodos() {
-        return medicoRepository.findAll();
+        return medicoService.listarTodos();
     }
+    
+ // Buscar médico por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Medico> buscarPorId(@PathVariable Long id) {
+        Optional<Medico> medico = medicoService.buscarPorId(id);
+        return medico.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    // Atualizar médico
+    @PutMapping("/{id}")
+    public ResponseEntity<Medico> atualizar(@PathVariable Long id, @RequestBody MedicoDTO medicoDTO) {
+        Optional<Medico> existente = medicoService.buscarPorId(id);
+        if (existente.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Medico medico = existente.get();
+        medico.setNome(medicoDTO.getNome());
+        medico.setCrm(medicoDTO.getCrm());
+        medico.setTelefone(medicoDTO.getTelefone());
+        medico.setDataNascimento(medicoDTO.getDataNascimento());
+
+        Set<Especialidade> especialidades = new HashSet<>();
+        for (Long espId : medicoDTO.getEspecialidadeIds()) {
+            especialidadeRepository.findById(espId).ifPresent(especialidades::add);
+        }
+        medico.setEspecialidades(especialidades);
+
+        Medico atualizado = medicoService.atualizar(medico);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    // Deletar médico
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (medicoService.buscarPorId(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        medicoService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
