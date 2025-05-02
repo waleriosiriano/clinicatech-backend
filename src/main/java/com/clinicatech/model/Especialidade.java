@@ -2,9 +2,13 @@ package com.clinicatech.model;
 
 import jakarta.persistence.*;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.GenerationType;
 
 @Entity
+@Table(name = "especialidade")
 public class Especialidade {
 
 	@Id
@@ -14,6 +18,7 @@ public class Especialidade {
 	private String nome;
 	
 	@ManyToMany(mappedBy = "especialidades")
+	@JsonIgnore
 	private Set<Medico> medicos;
 
 	public Long getId() {
